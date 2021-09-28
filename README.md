@@ -1,8 +1,8 @@
-# Rails Starter
+# RailsBot
 
-## Installation
+## Generate a New RailsBot Application
 
-Run `ruby -e "$(curl -s https://raw.githubusercontent.com/railsbot/railsbot/main/bin/new)"`
+`ruby -e "$(curl -s https://raw.githubusercontent.com/railsbot/railsbot/main/bin/new)"`
 
 ## Source Code
 
