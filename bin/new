@@ -1,0 +1,137 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'fileutils'
+require 'open-uri'
+
+# config/credentials.yml.enc
+# config/master.key
+FILES = %w[
+  app/assets/images/.keep
+  app/assets/javascripts/entrypoints/application.js
+  app/assets/stylesheets/application.scss
+  app/channels/application_cable/channel.rb
+  app/channels/application_cable/connection.rb
+  app/controllers/application_controller.rb
+  app/helpers/application_helper.rb
+  app/jobs/application_job.rb
+  app/mailers/application_mailer.rb
+  app/models/application_record.rb
+  app/views/layouts/application.html.erb
+  app/views/layouts/mailer.html.erb
+  app/views/layouts/mailer.text.erb
+  bin/rails
+  bin/rake
+  config/environments/development.rb
+  config/environments/production.rb
+  config/environments/test.rb
+  config/initializers/cookies.rb
+  config/initializers/inflections.rb
+  config/initializers/params.rb
+  config/locales/en.yml
+  config/application.rb
+  config/boot.rb
+  config/cable.yml
+  config/database.yml
+  config/environment.rb
+  config/puma.rb
+  config/routes.rb
+  config/storage.yml
+  db/seeds.rb
+  lib/tasks/.keep
+  log/.keep
+  public/robots.txt
+  spec/support/factory_bot.rb
+  spec/rails_helper.rb
+  spec/spec_helper.rb
+  storage/.keep
+  tmp/pids/.keep
+  tmp/.keep
+  .gitignore
+  .ruby-version
+  config.ru
+  Gemfile
+  Rakefile
+  README.md
+]
+
+def cancel
+  puts
+  puts red 'The generation of a new RailsBot application has been cancelled.'
+  puts 'Goodbye!'
+  abort
+end
+
+def confirm?
+  (print 'Type "y" and press Enter to confirm: '; gets&.rstrip.downcase) == 'y'
+end
+
+def cyan(string)
+  "\e[36m#{string}\e[0m"
+end
+
+def empty_directory?
+  (Dir['./**/*'] - ['./install']).length == 0
+end
+
+def green(string)
+  "\e[32m#{string}\e[0m"
+end
+
+def red(string)
+  "\e[31m#{string}\e[0m"
+end
+
+puts
+puts red %q[ooooooooo.              o8o  oooo           oooooooooo.                .   ]
+puts red %q[`888   `Y88.            `"'  `888           `888'   `Y8b             .o8   ]
+puts red %q[ 888   .d88'  .oooo.   oooo   888   .oooo.o  888     888  .ooooo.  .o888oo ]
+puts red %q[ 888ooo88P'  `P  )88b  `888   888  d88(  "8  888oooo888' d88' `88b   888   ]
+puts red %q[ 888`88b.     .oP"888   888   888  `"Y88b.   888    `88b 888   888   888   ]
+puts red %q[ 888  `88b.  d8(  888   888   888  o.  )88b  888    .88P 888   888   888 . ]
+puts red %q[o888o  o888o `Y888""8o o888o o888o 8""888P' o888bood8P'  `Y8bod8P'   "888" ]
+
+puts "\nWelcome to the RailsBot application generator!"
+
+puts "\nWould you like to generate a new RailsBot application in the current folder?"
+cancel unless confirm?
+
+existing_files = (Dir.glob('*', File::FNM_DOTMATCH) - ['.', '..', 'install'])
+
+if existing_files.length > 0
+  puts "\nThis directory is not empty. All files in this directory will be deleted. Would you like to continue?"
+  cancel unless confirm?
+  existing_files.each { |file| FileUtils.rm_rf file }
+end
+
+puts "\nDownloading code..."
+
+code = {}
+
+URI.open('https://raw.githubusercontent.com/railsbot/railsbot/main/README.md').read
+.split(/\s+---\s+/).each do |chunk|
+  if m = chunk.match(/- `([^`]+)`/)
+    filepath = m[1]
+    if m = chunk.match(/\n\n```(?:[^\s]+\n)?([^`]+)```/)
+      code[filepath] = m[1].strip + "\n"
+    end
+  end
+end
+
+puts green 'Done!'
+
+puts "\nGenerating #{FILES.length} files..."
+
+FILES.each do |filepath|
+  directory, _, filename = filepath.rpartition('/')
+  FileUtils.mkdir_p directory unless directory == ''
+  FileUtils.touch filepath
+  if code[filepath]
+    File.open(filepath, 'w') { |file| file.write(code[filepath]) }
+  end
+end
+
+puts green 'Done!'
+
+puts green "\nThe RailsBot application has been generated."
+puts 'Happy Coding!'
