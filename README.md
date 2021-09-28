@@ -2,7 +2,9 @@
 
 ## Generate a New RailsBot Application
 
-`ruby -e "$(curl -s https://raw.githubusercontent.com/railsbot/railsbot/main/bin/new)"`
+```
+ruby -e "$(curl -s https://raw.githubusercontent.com/railsbot/railsbot/main/bin/new)"
+```
 
 ## Source Code
 
